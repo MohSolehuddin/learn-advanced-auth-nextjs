@@ -16,6 +16,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { registerInputSchema } from "@/lib/schema/registerSchema";
+import register from "@/server/actions/register";
+import { useState } from "react";
+import AlertSuccess from "../alerts/AlertSuccess";
+import { AlertError } from "../alerts/error";
 
 export function FormRegister() {
   const form = useForm<z.infer<typeof registerInputSchema>>({
@@ -24,13 +28,28 @@ export function FormRegister() {
       name: "",
       password: "",
       email: "",
-      image: undefined,
+      // image: undefined,
     },
   });
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  function onSubmit(values: z.infer<typeof registerInputSchema>) {
-    // void api.register(values);
-    console.log(values);
+  interface responseSchema {
+    error?: string;
+    message?: string;
+    name?: string;
+    email?: string;
+  }
+
+  async function onSubmit(values: z.infer<typeof registerInputSchema>) {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    const response: responseSchema = await register(values);
+    if (response.error) setError(response.error);
+    if (response.message) setSuccess(response.message);
+    setLoading(false);
   }
 
   return (
@@ -79,7 +98,7 @@ export function FormRegister() {
             </FormItem>
           )}
         />
-        <FormField
+        {/* <FormField
           control={form.control}
           name="image"
           render={({ field: { onChange } }) => (
@@ -95,9 +114,11 @@ export function FormRegister() {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
+        {error && <AlertError message={error} />}
+        {success && <AlertSuccess message={success} />}
         <Button type="submit" className="w-full">
-          Register
+          {loading ? "Loading..." : "Register"}
         </Button>
       </form>
     </Form>
