@@ -9,12 +9,12 @@ export const registerInputSchema = z.object({
   password: z.string().min(MIN_PASSWORD_LENGTH, {
     message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
   }),
-  image: z
-    .instanceof(File)
-    .optional()
-    .refine((file) => file instanceof File, {
-      message: "The image must be a valid file.",
-    }),
+  // image: z
+  //   .instanceof(File)
+  //   .optional()
+  //   .refine((file) => file instanceof File, {
+  //     message: "The image must be a valid file.",
+  //   }),
 });
 
 export const registerDatabaseSchema = registerInputSchema.extend({
