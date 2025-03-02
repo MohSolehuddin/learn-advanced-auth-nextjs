@@ -1,3 +1,4 @@
+"use client";
 import AuthContainer from "@/components/auth/AuthContainer";
 import { FormLogin } from "@/components/auth/FormLogin";
 
