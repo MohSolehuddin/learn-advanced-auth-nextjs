@@ -1,8 +1,8 @@
 "use server";
 
 import { registerInputSchema } from "@/lib/schema/registerSchema";
+import { hashPassword } from "@/lib/utils/password";
 import { db } from "@/server/db";
-import bcrypt from "bcrypt";
 import { z } from "zod";
 export default async function register(
   values: z.infer<typeof registerInputSchema>
@@ -18,7 +18,7 @@ export default async function register(
     });
     if (userExist && userExist.email)
       return { error: "Email is already exist" };
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password);
 
     await db.user.create({
       data: {
