@@ -1,8 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-// import { signIn, useSession } from "next-auth/react";
-// import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,49 +15,24 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }),
-});
+import { LoginSchema } from "@/lib/schema/loginSchema";
+import login from "@/server/actions/login";
 
 export function FormLogin() {
-  // const { status } = useSession();
-  // const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // useEffect(() => {
-  //   if (status === "authenticated") {
-  //     router.push("/");
-  //   }
-  // }, [status, router]);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof LoginSchema>>({
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
     console.log(values);
     setLoading(true);
-    // const result = await signIn("credentials", {
-    //   redirect: false,
-    //   username: values.username,
-    //   password: values.password,
-    // });
-
-    // if (result?.error) {
-    //   alert("Login failed: " + result.error);
-    // } else {
-    //   router.push("/");
-    // }
+    login(values);
     setLoading(false);
   };
 
@@ -68,12 +41,12 @@ export function FormLogin() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
         <FormField
           control={form.control}
-          name="username"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Username or Email" {...field} />
+                <Input placeholder="Email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
