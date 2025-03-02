@@ -18,11 +18,15 @@
     "@prisma/extension-accelerate": "^1.2.2",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.2",
-    "bcrypt": "^5.1.1",
+    "aws-sdk": "^2.1692.0",
+    "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.476.0",
+    "mock-aws-s3": "^4.0.2",
     "next": "15.1.7",
+    "next-auth": "5.0.0-beta.25",
+    "nock": "^14.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
@@ -32,17 +36,18 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
+    "@eslint/eslintrc": "^3.3.0",
     "@types/bcrypt": "^5.0.2",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@types/node": "^20.17.22",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "eslint": "^9.21.0",
     "eslint-config-next": "15.1.7",
-    "postcss": "^8",
+    "html-loader": "^5.1.0",
+    "postcss": "^8.5.3",
     "prisma": "^6.4.1",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.17",
     "tsx": "^4.19.3",
-    "typescript": "^5"
+    "typescript": "^5.8.2"
   }
 }
