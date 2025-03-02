@@ -17,10 +17,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { LoginSchema } from "@/lib/schema/loginSchema";
 import login from "@/server/actions/login";
+import AlertSuccess from "../alerts/AlertSuccess";
+import { AlertError } from "../alerts/error";
 
 export function FormLogin() {
-  const [loading, setLoading] = useState(false);
-
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -29,10 +29,17 @@ export function FormLogin() {
     },
   });
 
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
     console.log(values);
     setLoading(true);
-    login(values);
+    const response = await login(values);
+    console.log(response);
+    if (response.error) setError(response.error);
+    if (response.message) setSuccess(response.message);
     setLoading(false);
   };
 
@@ -65,6 +72,8 @@ export function FormLogin() {
             </FormItem>
           )}
         />
+        {error && <AlertError message={error} />}
+        {success && <AlertSuccess message={success} />}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Loading..." : "Login"}
         </Button>
