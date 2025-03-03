@@ -1,6 +1,7 @@
 "use server";
 
 import { registerInputSchema } from "@/lib/schema/registerSchema";
+import { generateVerificationToken } from "@/lib/token";
 import { hashPassword } from "@/lib/utils/password";
 import { db } from "@/server/db";
 import { z } from "zod";
@@ -27,6 +28,7 @@ export default async function register(
         password: hashedPassword,
       },
     });
+    await generateVerificationToken(email);
     return { message: "User created successfully" };
   } catch (e) {
     return { error: "Something went wrong", message: String(e) };
