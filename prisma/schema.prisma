@@ -43,3 +43,13 @@ model Account {
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
+
+model VerificationToken {
+  id String @id @default(uuid())
+  email String
+  token      String
+  expires    DateTime
+ 
+  @@unique([email, token])
+  @@map("verification_tokens")
+}
