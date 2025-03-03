@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { LoginSchema } from "@/lib/schema/loginSchema";
 import login from "@/server/actions/login";
+import { useSearchParams } from "next/navigation";
 import AlertSuccess from "../alerts/AlertSuccess";
 import { AlertError } from "../alerts/error";
 
@@ -28,7 +29,10 @@ export function FormLogin() {
       password: "",
     },
   });
-
+  const errorLinkingAnAccount =
+    useSearchParams().get("error") === "OAuthAccountNotLinked"
+      ? "Oops! Something went wrong, please choose another login method"
+      : "";
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -72,8 +76,8 @@ export function FormLogin() {
             </FormItem>
           )}
         />
-        {error && <AlertError message={error} />}
-        {success && <AlertSuccess message={success} />}
+        <AlertError message={error || errorLinkingAnAccount} />
+        <AlertSuccess message={success ?? ""} />
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Loading..." : "Login"}
         </Button>
