@@ -23,6 +23,7 @@ export default {
             name: user?.name,
             email: user?.email,
             image: user?.image,
+            role: user?.role,
           };
         }
         return null;
