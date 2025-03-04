@@ -6,3 +6,9 @@ export async function getUserByEmail(email: string) {
 export async function getUserById(id: string) {
   return db.user.findUnique({ where: { id } });
 }
+export const makeEmailIsVerified = async (email: string) => {
+  return db.user.update({
+    where: { email },
+    data: { emailVerified: new Date() },
+  });
+};
