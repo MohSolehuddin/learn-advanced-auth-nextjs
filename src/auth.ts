@@ -3,6 +3,7 @@ import { db } from "@/server/db";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { UserRole } from "@prisma/client";
 import NextAuth from "next-auth";
+import { getUserById, makeEmailIsVerified } from "./data/user";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -11,10 +12,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   events: {
     async linkAccount({ user }) {
-      await db.user.update({
-        where: { id: user.id },
-        data: { emailVerified: new Date() },
-      });
+      await makeEmailIsVerified(user.email ?? "");
     },
   },
   pages: {
@@ -22,6 +20,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/auth/error",
   },
   callbacks: {
+    // async signIn({ user, account }) {
+    //   if (account?.provider !== "credentials") return true;
+    //   const existingUser = await getUserById(user.email ?? "");
+    //   if (!existingUser || !existingUser.emailVerified) return false;
+    //   console.log("ini running dog");
+    //   return true;
+    // },
     async session({ token, session }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
@@ -32,9 +37,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async jwt({ token }) {
       if (!token.sub) return token;
-      const existingUser = await db.user.findUnique({
-        where: { id: token.sub },
-      });
+      const existingUser = await getUserById(token.sub);
       if (!existingUser) return token;
       token.role = existingUser.role;
       return token;
