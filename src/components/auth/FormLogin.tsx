@@ -29,8 +29,9 @@ export function FormLogin() {
       password: "",
     },
   });
+  const searchParams = useSearchParams();
   const errorLinkingAnAccount =
-    useSearchParams().get("error") === "OAuthAccountNotLinked"
+    searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Oops! Something went wrong, please choose another login method"
       : "";
   const [error, setError] = useState<string | null>(null);
@@ -38,10 +39,8 @@ export function FormLogin() {
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
-    console.log(values);
     setLoading(true);
     const response = await login(values);
-    console.log(response);
     if (response.error) setError(response.error);
     if (response.message) setSuccess(response.message);
     setLoading(false);

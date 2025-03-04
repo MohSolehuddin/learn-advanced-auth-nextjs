@@ -1,4 +1,5 @@
-"use client";
+"use client"; // Pastikan ini ada di atas komponen
+
 import AlertSuccess from "@/components/alerts/AlertSuccess";
 import { AlertError } from "@/components/alerts/error";
 import Loading from "@/components/Loading";
@@ -37,7 +38,10 @@ export default function Page() {
   };
 
   useEffect(() => {
-    checkToken();
+    if (typeof window !== "undefined") {
+      console.log("Token:", token); // Log token for debugging
+      checkToken();
+    }
   }, [token]);
 
   return (
