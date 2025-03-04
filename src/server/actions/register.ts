@@ -1,6 +1,7 @@
 "use server";
 
 import { registerInputSchema } from "@/lib/schema/registerSchema";
+import senEmailVerification from "@/lib/sendEmailVerification";
 import { generateVerificationToken } from "@/lib/token";
 import { hashPassword } from "@/lib/utils/password";
 import { db } from "@/server/db";
@@ -28,8 +29,17 @@ export default async function register(
         password: hashedPassword,
       },
     });
-    await generateVerificationToken(email);
-    return { message: "User created successfully" };
+    const generatedVerifyToken = await generateVerificationToken(email);
+
+    if (generatedVerifyToken?.status === "error")
+      return { error: generatedVerifyToken.message };
+
+    const linkVerification = `http://localhost:3000/auth/verify-email?token=${generatedVerifyToken.data?.token}`;
+    await senEmailVerification(email, linkVerification, name);
+    return {
+      message:
+        "Registration successful, please check your email for verify your email",
+    };
   } catch (e) {
     return { error: "Something went wrong", message: String(e) };
   }
