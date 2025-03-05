@@ -20,26 +20,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/auth/error",
   },
   callbacks: {
-    // async signIn({ user, account }) {
-    //   if (account?.provider !== "credentials") return true;
-    //   const existingUser = await getUserById(user.email ?? "");
-    //   if (!existingUser || !existingUser.emailVerified) return false;
-    //   console.log("ini running dog");
-    //   return true;
-    // },
     async session({ token, session }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
+        session.user.name = token.name;
+        session.user.email = token.email as string;
+        session.user.image = token.image as string;
         session.user.role = token.role as UserRole;
       }
-      console.log({ sessionToken: token, session });
       return session;
     },
-    async jwt({ token }) {
+    async jwt({ token, trigger, session }) {
+      console.log({ trigger });
       if (!token.sub) return token;
+
       const existingUser = await getUserById(token.sub);
       if (!existingUser) return token;
+
       token.role = existingUser.role;
+      token.name = existingUser.name;
+      token.email = existingUser.email;
+      token.image = existingUser.image;
+
+      if (trigger === "update" && session) {
+        token.name = session.user.name;
+        token.email = session.user.email;
+        token.image = session.user.image;
+      }
+
       return token;
     },
   },
