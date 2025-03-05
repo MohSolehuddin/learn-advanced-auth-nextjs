@@ -40,12 +40,11 @@ export default function Page() {
     setLoading(true);
     setError("");
     setSuccess("");
-    const response = await updatePassword(
-      session?.user?.email ?? "",
-      values.lastPassword,
-      values.newPassword
-    );
-    console.log(response);
+    const formData = {
+      ...values,
+      email: session?.user.email ?? "",
+    };
+    const response = await updatePassword(formData);
     if (response.error) setError(response.error);
     if (response.message) setSuccess(response.message);
     setLoading(false);
