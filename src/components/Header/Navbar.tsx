@@ -8,14 +8,15 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { LucideSettings } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "../ui/button";
 
 export function NavBar() {
-  const session = useSession();
+  const { status } = useSession();
+
   return (
-    <nav className="w-full flex justify-between px-6 py-2">
+    <nav className="w-full flex justify-between py-2">
       <NavigationMenu>
         <NavigationMenuList className="flex gap-4">
           <NavigationMenuItem>
@@ -30,7 +31,7 @@ export function NavBar() {
       </NavigationMenu>
       <NavigationMenu>
         <NavigationMenuList className="flex gap-4">
-          {session.status === "unauthenticated" ? (
+          {status === "unauthenticated" ? (
             <>
               <NavigationMenuItem>
                 <Link href="/auth/login" legacyBehavior passHref>
@@ -50,11 +51,7 @@ export function NavBar() {
           ) : (
             <>
               <NavigationMenuItem>
-                <Link href="/auth/register" passHref>
-                  <Button asChild>
-                    <a>Log Out</a>
-                  </Button>
-                </Link>
+                <Button onClick={() => signOut()}>Log Out</Button>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <Link href="/settings" passHref>

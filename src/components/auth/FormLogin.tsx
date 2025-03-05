@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { LoginSchema } from "@/lib/schema/loginSchema";
 import login from "@/server/actions/login";
+import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import AlertSuccess from "../alerts/AlertSuccess";
 import { AlertError } from "../alerts/error";
@@ -30,6 +31,7 @@ export function FormLogin() {
     },
   });
   const searchParams = useSearchParams();
+  const { update } = useSession();
   const errorLinkingAnAccount =
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Oops! Something went wrong, please choose another login method"
@@ -43,6 +45,7 @@ export function FormLogin() {
     const response = await login(values);
     if (response.error) setError(response.error);
     if (response.message) setSuccess(response.message);
+    update();
     setLoading(false);
   };
 
