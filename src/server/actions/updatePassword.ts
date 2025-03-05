@@ -1,14 +1,18 @@
 "use server";
 import { getUserByEmail, updateUser } from "@/data/user";
+import { updatePasswordSchema } from "@/lib/schema/updatePasswordSchema";
 import { hashPassword, verifyPassword } from "@/lib/utils/password";
+import { z } from "zod";
 
 export const updatePassword = async (
-  email: string,
-  lastPassword: string,
-  newPassword: string
+  values: z.infer<typeof updatePasswordSchema>
 ) => {
+  const validatedInput = updatePasswordSchema.safeParse(values);
+  if (!validatedInput.success) return { error: validatedInput.error.message };
+
+  const { email, lastPassword, newPassword } = values;
   try {
-    const user = await getUserByEmail(email);
+    const user = await getUserByEmail(email ?? "");
     if (user) {
       const lastPasswordMatch = await verifyPassword(
         lastPassword,
