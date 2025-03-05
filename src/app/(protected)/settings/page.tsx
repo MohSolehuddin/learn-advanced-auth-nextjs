@@ -16,8 +16,11 @@ export default function Page() {
     }
   });
 
-  const onUpdate = () => {
+  const onPasswordUpdate = () => {
     router.push("/settings/update/password");
+  };
+  const onUpdateProfile = () => {
+    router.push("/settings/update/profile");
   };
 
   if (status === "loading") {
@@ -38,8 +41,9 @@ export default function Page() {
         <h1>Hallo, {session?.user?.name}</h1>
         <h2>Your email, {session?.user?.email}</h2>
       </section>
-      <section>
-        <Button onClick={onUpdate}>Update</Button>
+      <section className="flex gap-6">
+        <Button onClick={onUpdateProfile}>Update Profile</Button>
+        <Button onClick={onPasswordUpdate}>Update Password</Button>
       </section>
     </div>
   );
