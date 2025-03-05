@@ -51,7 +51,9 @@ export function NavBar() {
           ) : (
             <>
               <NavigationMenuItem>
-                <Button onClick={() => signOut()}>Log Out</Button>
+                <Button variant="destructive" onClick={() => signOut()}>
+                  Log Out
+                </Button>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <Link href="/settings" passHref>

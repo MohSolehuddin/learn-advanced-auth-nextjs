@@ -12,3 +12,10 @@ export const makeEmailIsVerified = async (email: string) => {
     data: { emailVerified: new Date() },
   });
 };
+
+export const updateUser = async (id: string, { ...data }) => {
+  return db.user.update({
+    where: { id },
+    data,
+  });
+};
