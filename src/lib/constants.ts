@@ -7,3 +7,4 @@ export const ACCEPTED_IMAGE_TYPES = [
 ];
 export const MIN_PASSWORD_LENGTH = 8;
 export const MIN_NAME_LENGTH = 2;
+export const JWT_EXPIRATION_IN_HOURS = 3600;
