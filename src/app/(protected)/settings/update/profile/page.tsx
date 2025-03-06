@@ -40,8 +40,14 @@ export default function Page() {
 
     if (response.error) setError(response.error);
     if (response.message) {
-      setSuccess(response.message);
-      await update();
+      setSuccess(response.message + ". Automatic redirecting...");
+      await update({
+        name: values.name,
+        email: values.email,
+      });
+      setTimeout(() => {
+        router.back();
+      }, 1000);
     }
     setLoading(false);
   };
