@@ -16,11 +16,11 @@ export const updateProfile = async (
 
   const { email, name } = values;
   const session = await auth();
-  if (!session?.user?.email) return { error: "Unauthorized" };
+  if (!session?.user?.email) return { success: false, error: "Unauthorized" };
 
   try {
     const user = await getUserByEmail(session.user.email);
-    if (!user) return { error: "User not found" };
+    if (!user) return { success: false, error: "User not found" };
 
     const updatedData: Partial<z.infer<typeof UpdateProfileSchema>> = {};
 
@@ -32,14 +32,14 @@ export const updateProfile = async (
     }
 
     if (Object.keys(updatedData).length === 0) {
-      return { error: "Please change one or more fields" };
+      return { success: false, error: "Please change one or more fields" };
     }
 
     await updateUser(user.id, updatedData);
 
-    return { message: "Profile updated successfully" };
+    return { success: true, message: "Profile updated successfully" };
   } catch (error) {
-    console.error("Error updating profile:", error);
+    console.log(error);
     return { error: "Something went wrong. Please try again later." };
   }
 };
