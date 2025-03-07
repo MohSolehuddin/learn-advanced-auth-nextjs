@@ -1,25 +1,16 @@
 "use client";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import InputOTPComponent from "@/components/input/InputOTPComponent";
 import { generate2fa } from "@/server/actions/2fa/generate";
-import { verify2fa } from "@/server/actions/2fa/verify";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 
 const TwoFactorModal = () => {
-  const [otp, setOtp] = useState("");
-  const [invalidOtp, setInvalidOtp] = useState(false);
   const [qrData, setQrData] = useState("");
   const [secret, setSecret] = useState("");
 
   const get2faQrCode = async () => {
     const response = await generate2fa();
-
-    console.log("Created QR Code", response);
+    console.log("generated 2fa", response);
 
     if (response) {
       setQrData(response.otpauthUrl);
@@ -31,21 +22,6 @@ const TwoFactorModal = () => {
     get2faQrCode();
   }, []);
 
-  const handleOtpChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    setOtp(e.target.value);
-
-    if (e.target.value.length === 6) {
-      const token = e.target.value;
-      const response = await verify2fa(secret, token);
-
-      if (response.success) {
-        console.log("OTP Verified!");
-      } else {
-        setInvalidOtp(true);
-      }
-    }
-  };
-
   return (
     <div className="flex justify-end w-full">
       <div className="container mx-auto p-4">
@@ -55,7 +31,7 @@ const TwoFactorModal = () => {
               <QRCode
                 value={qrData}
                 size={256}
-                fgColor="#000000"
+                fgColor="#000"
                 bgColor="#fff"
                 className="rounded-lg border-2"
               />
@@ -77,23 +53,7 @@ const TwoFactorModal = () => {
               </li>
             </ul>
 
-            <InputOTP maxLength={6} onInput={handleOtpChange} value={otp}>
-              <InputOTPGroup className="text-primary">
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-              </InputOTPGroup>
-              <InputOTPSeparator className="text-primary" />
-              <InputOTPGroup className="text-primary">
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
-
-            {invalidOtp && (
-              <p className="mt-3 text-red-500 text-sm">*Invalid Code</p>
-            )}
+            <InputOTPComponent secret={secret} />
           </div>
         </div>
       </div>
