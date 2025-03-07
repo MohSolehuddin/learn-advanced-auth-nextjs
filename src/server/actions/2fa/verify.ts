@@ -11,9 +11,6 @@ export async function verify2fa({
   secret?: string;
 }) {
   const session = await auth();
-  console.log("verify 2fa");
-  console.log("session", session);
-  console.log("secret", secret);
   let existingUser;
   if (!secret) existingUser = await getUserByEmail(session?.user?.email ?? "");
 
