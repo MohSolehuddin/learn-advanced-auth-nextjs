@@ -3,6 +3,7 @@ import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -45,6 +46,9 @@ export default function Page() {
         <Button onClick={onUpdateProfile}>Update Profile</Button>
         <Button onClick={onPasswordUpdate}>Update Password</Button>
       </section>
+      <Link href="/2fa/enable" className="m-auto">
+        <Button>Enable Two Factor Authentication</Button>
+      </Link>
     </div>
   );
 }
