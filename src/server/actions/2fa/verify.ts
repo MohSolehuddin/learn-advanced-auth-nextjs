@@ -1,6 +1,6 @@
 "use server";
 import { auth } from "@/auth";
-import { getUserByEmail } from "@/data/user";
+import { getUserByEmail, updateUser } from "@/data/user";
 import { authenticator } from "otplib";
 
 export async function verify2fa({
@@ -11,10 +11,13 @@ export async function verify2fa({
   secret?: string;
 }) {
   const session = await auth();
+  console.log("verify 2fa");
+  console.log("session", session);
+  console.log("secret", secret);
   let existingUser;
   if (!secret) existingUser = await getUserByEmail(session?.user?.email ?? "");
 
-  if (!existingUser?.twoFA_key && !secret)
+  if (existingUser && !existingUser.twoFA_key && !secret)
     return {
       message: "Please enable Two Factor Authentication",
       success: false,
@@ -22,10 +25,12 @@ export async function verify2fa({
 
   const isValid = authenticator.check(
     token,
-    secret ?? (existingUser?.twoFA_key as string)
+    secret ?? existingUser?.twoFA_key ?? ""
   );
 
   if (isValid) {
+    if (secret)
+      await updateUser(session?.user?.id as string, { twoFA_key: secret });
     return { message: "Token is valid", success: true };
   } else {
     return { message: "Invalid token", success: false };
