@@ -19,7 +19,8 @@ model User {
   password      String?
   emailVerified DateTime? @map("email_verified")
   image         String?
-  role          UserRole @default(USER)
+  role          UserRole  @default(USER)
+  twoFA_key     String?
   accounts      Account[]
 
   @@map("users")
