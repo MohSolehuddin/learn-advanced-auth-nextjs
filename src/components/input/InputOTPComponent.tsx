@@ -5,33 +5,19 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { verify2fa } from "@/server/actions/2fa/verify";
-import { useSession } from "next-auth/react";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent } from "react";
 
-export default function InputOTPComponent({ secret }: { secret?: string }) {
-  const [otp, setOtp] = useState("");
-  const [error, setError] = useState("");
-  const { update } = useSession();
+interface InputOTPComponentProps {
+  handleOtpChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  otp: string;
+  error: string;
+}
 
-  const handleOtpChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (error) setError("");
-    setOtp(e.target.value);
-
-    if (e.target.value.length === 6) {
-      const token = e.target.value;
-      let response;
-      if (!secret) {
-        update({ otp: token });
-      } else {
-        response = await verify2fa({ token, secret });
-      }
-
-      if (!response?.success) return setError(response?.message ?? "");
-      console.log("Successfully verified 2fa", response);
-    }
-  };
-
+export default function InputOTPComponent({
+  handleOtpChange,
+  otp,
+  error,
+}: InputOTPComponentProps) {
   return (
     <section>
       <InputOTP maxLength={6} onInput={handleOtpChange} value={otp}>
