@@ -1,12 +1,37 @@
 "use client";
 import InputOTPComponent from "@/components/input/InputOTPComponent";
 import { generate2fa } from "@/server/actions/2fa/generate";
-import { useEffect, useState } from "react";
+import { verify2fa } from "@/server/actions/2fa/verify";
+import { useSession } from "next-auth/react";
+import { ChangeEvent, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 
 const TwoFactorModal = () => {
   const [qrData, setQrData] = useState("");
   const [secret, setSecret] = useState("");
+
+  const [error, setError] = useState("");
+  const [otp, setOtp] = useState("");
+
+  const { update } = useSession();
+
+  const handleOtpChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (error) setError("");
+    setOtp(e.target.value);
+
+    if (e.target.value.length === 6) {
+      const token = e.target.value;
+      let response;
+      if (!secret) {
+        update({ otp: token });
+      } else {
+        response = await verify2fa({ token, secret });
+      }
+
+      if (!response?.success) return setError(response?.message ?? "");
+      console.log("Successfully verified 2fa", response);
+    }
+  };
 
   const get2faQrCode = async () => {
     const response = await generate2fa();
@@ -53,7 +78,11 @@ const TwoFactorModal = () => {
               </li>
             </ul>
 
-            <InputOTPComponent secret={secret} />
+            <InputOTPComponent
+              handleOtpChange={handleOtpChange}
+              otp={otp}
+              error={error}
+            />
           </div>
         </div>
       </div>
