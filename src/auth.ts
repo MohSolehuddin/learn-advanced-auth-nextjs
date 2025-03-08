@@ -7,6 +7,7 @@ import { getUserById, makeEmailIsVerified } from "./data/user";
 import { JWT_EXPIRATION_IN_HOURS } from "./lib/constants";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(db),
   session: {
     strategy: "jwt",
@@ -22,16 +23,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/auth/error",
   },
   callbacks: {
-    async session({ token, session }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
-        session.user.name = token.name;
-        session.user.email = token.email as string;
-        session.user.image = token.image as string;
-        session.user.role = token.role as UserRole;
-      }
-      return session;
-    },
     async jwt({ token, trigger, session }) {
       if (!token.sub) return token;
       if (trigger && trigger !== "update") {
@@ -41,6 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.name = existingUser.name;
         token.email = existingUser.email;
         token.image = existingUser.image;
+        token.OTP_verified = !!existingUser.twoFA_key;
       }
       if (trigger === "update" && session) {
         token.name = session.name;
@@ -49,6 +41,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return token;
     },
+    async session({ token, session }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+        session.user.name = token.name;
+        session.user.email = token.email ?? "";
+        session.user.image = token.image as string;
+        session.user.role = token.role as UserRole;
+        session.user.OTP_verified = token.OTP_verified as boolean;
+      }
+      return session;
+    },
   },
-  ...authConfig,
 });
