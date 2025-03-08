@@ -8,4 +8,8 @@ export const LoginSchema = object({
     .min(1, "Password is required")
     .min(8, "Password must be more than 8 characters")
     .max(32, "Password must be less than 32 characters"),
+  code: string()
+    .min(6, "please enter 6 characters")
+    .max(6, "please enter 6 characters")
+    .optional(),
 });
