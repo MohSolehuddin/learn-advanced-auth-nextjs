@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -17,10 +17,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { LoginSchema } from "@/lib/schema/loginSchema";
 import login from "@/server/actions/login";
+import { Dialog } from "@radix-ui/react-dialog";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import AlertSuccess from "../alerts/AlertSuccess";
 import { AlertError } from "../alerts/error";
+import InputOTPComponent from "../input/InputOTPComponent";
+import {
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 export function FormLogin() {
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -28,17 +38,33 @@ export function FormLogin() {
     defaultValues: {
       email: "",
       password: "",
+      code: undefined,
     },
   });
+
   const searchParams = useSearchParams();
   const { update } = useSession();
+
   const errorLinkingAnAccount =
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Oops! Something went wrong, please choose another login method"
       : "";
+
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [otp, setOtp] = useState("");
+
+  const handleOtpChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    form.setValue("code", e.target.value);
+    setOtp(e.target.value);
+    if (e.target.value.length === 6) {
+      setLoading(true);
+      onSubmit(form.getValues());
+      setLoading(false);
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
     setLoading(true);
@@ -65,6 +91,7 @@ export function FormLogin() {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="password"
@@ -78,6 +105,30 @@ export function FormLogin() {
             </FormItem>
           )}
         />
+
+        <Dialog open={error === "2FA is required"}>
+          <DialogTrigger asChild>
+            <Button variant="outline">Edit Profile</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Edit profile</DialogTitle>
+              <DialogDescription>
+                Make changes to your profile here. Click save when you&#39;re
+                done.
+              </DialogDescription>
+            </DialogHeader>
+            <InputOTPComponent
+              handleOtpChange={handleOtpChange}
+              otp={otp}
+              error={error ?? ""}
+            />
+            <DialogFooter>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <AlertError message={error || errorLinkingAnAccount} />
         <AlertSuccess message={success ?? ""} />
         <Button type="submit" disabled={loading} className="w-full">
