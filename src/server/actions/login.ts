@@ -6,6 +6,7 @@ import { LoginSchema } from "@/lib/schema/loginSchema";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 import { z } from "zod";
+import { verify2fa } from "./2fa/verify";
 
 export default async function login(values: z.infer<typeof LoginSchema>) {
   const validated = LoginSchema.safeParse(values);
@@ -19,6 +20,20 @@ export default async function login(values: z.infer<typeof LoginSchema>) {
     return {
       error: "Email is not verified, please check your email",
     };
+  }
+
+  if (existingUser.twoFA_key) {
+    if (!values.code) {
+      return {
+        error: "2FA is required",
+      };
+    }
+
+    const verified2faCode = await verify2fa({
+      token: values.code ?? "",
+      secret: existingUser.twoFA_key,
+    });
+    if (!verified2faCode.success) return { error: verified2faCode.message };
   }
 
   try {
@@ -36,6 +51,7 @@ export default async function login(values: z.infer<typeof LoginSchema>) {
           return { error: "Something went wrong" };
       }
     }
+    console.log("Error logging in", error);
     throw error;
   }
 
