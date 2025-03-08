@@ -11,15 +11,17 @@ interface InputOTPComponentProps {
   handleOtpChange: (e: ChangeEvent<HTMLInputElement>) => void;
   otp: string;
   error: string;
+  className?: string;
 }
 
 export default function InputOTPComponent({
   handleOtpChange,
   otp,
   error,
+  className,
 }: InputOTPComponentProps) {
   return (
-    <section>
+    <section className={className}>
       <InputOTP maxLength={6} onInput={handleOtpChange} value={otp}>
         <InputOTPGroup className="text-primary">
           <InputOTPSlot index={0} />
