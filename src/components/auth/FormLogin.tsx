@@ -26,10 +26,8 @@ import InputOTPComponent from "../input/InputOTPComponent";
 import {
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "../ui/dialog";
 
 export function FormLogin() {
@@ -51,10 +49,23 @@ export function FormLogin() {
       : "";
 
   const [error, setError] = useState<string | null>(null);
+  const [OTPError, setOTPError] = useState<string>("");
+  const [isOTPModalOpen, setIsOTPModalOpen] = useState<boolean | undefined>(
+    undefined
+  );
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
   const [otp, setOtp] = useState("");
+
+  const handleModalOpenChange = () => {
+    if (isOTPModalOpen) {
+      setOtp("");
+      setOTPError("");
+      form.setValue("code", "");
+    }
+    setIsOTPModalOpen(!isOTPModalOpen);
+    setLoading(false);
+  };
 
   const handleOtpChange = async (e: ChangeEvent<HTMLInputElement>) => {
     form.setValue("code", e.target.value);
@@ -67,12 +78,38 @@ export function FormLogin() {
   };
 
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
+    if (!values.code && isOTPModalOpen !== undefined) return;
+    if (values.code && values.code?.length < 6) return;
+
+    clearAllState();
     setLoading(true);
     const response = await login(values);
-    if (response.error) setError(response.error);
+    setLoading(false);
+    console.log(response);
+    if (response.error) {
+      if (
+        response.error === "2FA is required" ||
+        response.error === "Invalid token"
+      ) {
+        setIsOTPModalOpen(true);
+      } else {
+        setError(response.error);
+      }
+
+      if (values.code) {
+        setOTPError(response.error);
+      }
+      return;
+    }
     if (response.message) setSuccess(response.message);
     update();
-    setLoading(false);
+    clearAllState();
+  };
+
+  const clearAllState = () => {
+    setError(null);
+    setSuccess(null);
+    setOTPError("");
   };
 
   return (
@@ -106,34 +143,38 @@ export function FormLogin() {
           )}
         />
 
-        <Dialog open={error === "2FA is required"}>
-          <DialogTrigger asChild>
-            <Button variant="outline">Edit Profile</Button>
-          </DialogTrigger>
+        <Dialog open={isOTPModalOpen} onOpenChange={handleModalOpenChange}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Edit profile</DialogTitle>
+              <DialogTitle>Input OTP</DialogTitle>
               <DialogDescription>
-                Make changes to your profile here. Click save when you&#39;re
-                done.
+                Please enter the 6 digit code from your authenticator app
               </DialogDescription>
             </DialogHeader>
             <InputOTPComponent
+              className="m-auto"
               handleOtpChange={handleOtpChange}
               otp={otp}
-              error={error ?? ""}
+              error={OTPError}
             />
-            <DialogFooter>
-              <Button type="submit">Save changes</Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
 
         <AlertError message={error || errorLinkingAnAccount} />
         <AlertSuccess message={success ?? ""} />
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? "Loading..." : "Login"}
-        </Button>
+
+        {isOTPModalOpen !== undefined ? (
+          <Button
+            onClick={handleModalOpenChange}
+            disabled={loading}
+            className="w-full">
+            {loading ? "Loading..." : "Input OTP"}
+          </Button>
+        ) : (
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "Loading..." : "Login"}
+          </Button>
+        )}
       </form>
     </Form>
   );
